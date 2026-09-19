@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import QRCodeDisplay from './QRCodeDisplay';
 
@@ -67,132 +66,128 @@ export default function StaffControls() {
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // Fetch doctors list
-  useEffect(() => {
-    fetch('/api/doctors')
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success) {
-          setDoctors(data.doctors);
-          if (data.doctors.length > 0 && !selectedDoctorId) {
-            setSelectedDoctorId(data.doctors[0].id);
-          }
+  const refreshDoctors = useCallback(async () => {
+    try {
+      const res = await fetch('/api/doctors');
+      const data = await res.json();
+      if (data.success) {
+        setDoctors(data.doctors);
+        if (data.doctors.length > 0 && !selectedDoctorId) {
+          setSelectedDoctorId(data.doctors[0].id);
         }
-      })
-      .catch(console.error);
+        return data.doctors as Doctor[];
+      }
+    } catch (err) {
+      console.error('Failed to fetch doctors:', err);
+    }
+    return null;
   }, [selectedDoctorId]);
 
-  // Fetch dashboard data for selected doctor
+  // Initial doctors fetch
+  useEffect(() => {
+    refreshDoctors();
+  }, [refreshDoctors]);
+
+  // Fetch dashboard data — always re-checks doctors for latest session info
   const fetchDashboard = useCallback(async () => {
     if (!selectedDoctorId) return;
 
-    const doctor = doctors.find((d) => d.id === selectedDoctorId);
+    // Re-fetch doctors to get the latest todaySession (e.g. patient just created one)
+    const freshDoctors = await refreshDoctors();
+    const doctorsList = freshDoctors || doctors;
+    const doctor = doctorsList.find((d: Doctor) => d.id === selectedDoctorId);
+
     if (!doctor?.todaySession) {
       setDashboard(null);
+      setLoading(false);
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/queue/dashboard?sessionId=${doctor.todaySession.id}`);
-      const data = await res.json();
+      const supabase = getSupabaseBrowserClient();
+      const { data: entries } = await supabase
+        .from('queue_entries')
+        .select('*, patient:patients!inner(*)')
+        .eq('session_id', doctor.todaySession.id)
+        .order('token_number', { ascending: true });
 
-      if (data.success) {
-        setDashboard({
-          session: data.session,
-          entries: data.entries || [],
-          waitingCount: data.waitingCount || 0,
-          completedCount: data.completedCount || 0,
-          totalCount: data.totalCount || 0,
-        });
-      } else {
-        // Fallback to client Supabase query if needed
-        const supabase = getSupabaseBrowserClient();
-        const { data: entries } = await supabase
-          .from('queue_entries')
-          .select('*, patient:patients!inner(*)')
-          .eq('session_id', doctor.todaySession.id)
-          .order('token_number', { ascending: true });
+      const allEntries = (entries || []) as unknown as QueueEntry[];
 
-        const allEntries = (entries || []) as unknown as QueueEntry[];
-
-        setDashboard({
-          session: {
-            ...doctor.todaySession,
-            doctor: doctor,
-          },
-          entries: allEntries,
-          waitingCount: allEntries.filter((e) => e.status === 'waiting').length,
-          completedCount: allEntries.filter((e) => e.status === 'completed').length,
-          totalCount: allEntries.length,
-        });
-      }
+      setDashboard({
+        session: {
+          ...doctor.todaySession,
+          doctor: doctor,
+        },
+        entries: allEntries,
+        waitingCount: allEntries.filter((e) => e.status === 'waiting').length,
+        completedCount: allEntries.filter((e) => e.status === 'completed').length,
+        totalCount: allEntries.length,
+      });
     } catch (err) {
       console.error('Dashboard fetch error:', err);
     } finally {
       setLoading(false);
     }
-  }, [selectedDoctorId, doctors]);
+  }, [selectedDoctorId, doctors, refreshDoctors]);
 
   useEffect(() => {
     fetchDashboard();
   }, [fetchDashboard]);
 
-  // Real-time subscription & fallback polling
+  // Real-time subscription — always listens for the selected doctor's sessions
+  // This catches both new session creation AND existing session updates
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchDashboard();
-    }, 3000);
+    if (!selectedDoctorId) return;
 
-    if (!dashboard?.session?.id) {
-      return () => clearInterval(interval);
-    }
+    const supabase = getSupabaseBrowserClient();
 
-    let channel: RealtimeChannel | null = null;
-    let supabase: SupabaseClient | null = null;
-
-    try {
-      supabase = getSupabaseBrowserClient();
-      channel = supabase
-        .channel(`staff-queue-${dashboard.session.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'queue_sessions',
-            filter: `id=eq.${dashboard.session.id}`,
-          },
-          () => {
-            fetch('/api/doctors')
-              .then((r) => r.json())
-              .then((data) => {
-                if (data.success) setDoctors(data.doctors);
-              });
-            fetchDashboard();
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'queue_entries',
-            filter: `session_id=eq.${dashboard.session.id}`,
-          },
-          () => {
-            fetchDashboard();
-          }
-        )
-        .subscribe();
-    } catch (err) {
-      console.warn('Realtime subscription fallback active:', err);
-    }
+    // Subscribe to queue_sessions for this doctor (catches new session creation + updates)
+    const channel = supabase
+      .channel(`staff-doctor-${selectedDoctorId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'queue_sessions',
+          filter: `doctor_id=eq.${selectedDoctorId}`,
+        },
+        () => {
+          fetchDashboard();
+        }
+      )
+      .subscribe();
 
     return () => {
-      clearInterval(interval);
-      if (supabase && channel) {
-        supabase.removeChannel(channel);
-      }
+      supabase.removeChannel(channel);
+    };
+  }, [selectedDoctorId, fetchDashboard]);
+
+  // Subscribe to queue_entries when a session exists (catches new patients joining)
+  useEffect(() => {
+    if (!dashboard?.session?.id) return;
+
+    const supabase = getSupabaseBrowserClient();
+
+    const channel = supabase
+      .channel(`staff-entries-${dashboard.session.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'queue_entries',
+          filter: `session_id=eq.${dashboard.session.id}`,
+        },
+        () => {
+          fetchDashboard();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
   }, [dashboard?.session?.id, fetchDashboard]);
 
