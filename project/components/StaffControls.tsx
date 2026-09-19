@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import QRCodeDisplay from './QRCodeDisplay';
 
@@ -57,7 +57,7 @@ export default function StaffControls() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>('');
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showQR, setShowQR] = useState(false);
   const [showPriorityForm, setShowPriorityForm] = useState(false);
@@ -65,45 +65,45 @@ export default function StaffControls() {
   const [priorityPhone, setPriorityPhone] = useState('');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // Fetch doctors list
-  const refreshDoctors = useCallback(async () => {
+  // Refs to avoid dependency cycles in callbacks
+  const doctorsRef = useRef<Doctor[]>([]);
+  const selectedDoctorRef = useRef<string>('');
+  const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const hasFetchedOnce = useRef(false);
+
+  doctorsRef.current = doctors;
+  selectedDoctorRef.current = selectedDoctorId;
+
+  // Fetch fresh doctors list from API
+  const fetchDoctors = useCallback(async (): Promise<Doctor[]> => {
     try {
       const res = await fetch('/api/doctors');
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.doctors) {
         setDoctors(data.doctors);
-        if (data.doctors.length > 0 && !selectedDoctorId) {
-          setSelectedDoctorId(data.doctors[0].id);
-        }
         return data.doctors as Doctor[];
       }
     } catch (err) {
       console.error('Failed to fetch doctors:', err);
     }
-    return null;
-  }, [selectedDoctorId]);
+    return doctorsRef.current;
+  }, []);
 
-  // Initial doctors fetch
-  useEffect(() => {
-    refreshDoctors();
-  }, [refreshDoctors]);
+  // Fetch dashboard entries for the current doctor — subtle (no loading spinner)
+  const refreshDashboard = useCallback(async () => {
+    const docId = selectedDoctorRef.current;
+    if (!docId) return;
 
-  // Fetch dashboard data — always re-checks doctors for latest session info
-  const fetchDashboard = useCallback(async () => {
-    if (!selectedDoctorId) return;
-
-    // Re-fetch doctors to get the latest todaySession (e.g. patient just created one)
-    const freshDoctors = await refreshDoctors();
-    const doctorsList = freshDoctors || doctors;
-    const doctor = doctorsList.find((d: Doctor) => d.id === selectedDoctorId);
+    // Always re-fetch doctors to pick up new sessions
+    const freshDoctors = await fetchDoctors();
+    const doctor = freshDoctors.find((d) => d.id === docId);
 
     if (!doctor?.todaySession) {
       setDashboard(null);
-      setLoading(false);
+      setInitialLoading(false);
       return;
     }
 
-    setLoading(true);
     try {
       const supabase = getSupabaseBrowserClient();
       const { data: entries } = await supabase
@@ -125,24 +125,46 @@ export default function StaffControls() {
         totalCount: allEntries.length,
       });
     } catch (err) {
-      console.error('Dashboard fetch error:', err);
+      console.error('Dashboard refresh error:', err);
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
+      hasFetchedOnce.current = true;
     }
-  }, [selectedDoctorId, doctors, refreshDoctors]);
+  }, [fetchDoctors]);
 
+  // Debounced refresh — prevents rapid-fire updates from realtime
+  const debouncedRefresh = useCallback(() => {
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    refreshTimerRef.current = setTimeout(() => {
+      refreshDashboard();
+    }, 300);
+  }, [refreshDashboard]);
+
+  // Initial load: fetch doctors and select first one
   useEffect(() => {
-    fetchDashboard();
-  }, [fetchDashboard]);
+    const init = async () => {
+      const docs = await fetchDoctors();
+      if (docs.length > 0 && !selectedDoctorRef.current) {
+        setSelectedDoctorId(docs[0].id);
+      }
+      setInitialLoading(false);
+    };
+    init();
+  }, [fetchDoctors]);
 
-  // Real-time subscription — always listens for the selected doctor's sessions
-  // This catches both new session creation AND existing session updates
+  // Re-fetch dashboard when selected doctor changes
+  useEffect(() => {
+    if (selectedDoctorId) {
+      setInitialLoading(!hasFetchedOnce.current);
+      refreshDashboard();
+    }
+  }, [selectedDoctorId, refreshDashboard]);
+
+  // Realtime: listen for session changes for the selected doctor
   useEffect(() => {
     if (!selectedDoctorId) return;
 
     const supabase = getSupabaseBrowserClient();
-
-    // Subscribe to queue_sessions for this doctor (catches new session creation + updates)
     const channel = supabase
       .channel(`staff-doctor-${selectedDoctorId}`)
       .on(
@@ -153,43 +175,39 @@ export default function StaffControls() {
           table: 'queue_sessions',
           filter: `doctor_id=eq.${selectedDoctorId}`,
         },
-        () => {
-          fetchDashboard();
-        }
+        () => debouncedRefresh()
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [selectedDoctorId, fetchDashboard]);
+  }, [selectedDoctorId, debouncedRefresh]);
 
-  // Subscribe to queue_entries when a session exists (catches new patients joining)
+  // Realtime: listen for queue entry changes when session exists
   useEffect(() => {
-    if (!dashboard?.session?.id) return;
+    const sessionId = dashboard?.session?.id;
+    if (!sessionId) return;
 
     const supabase = getSupabaseBrowserClient();
-
     const channel = supabase
-      .channel(`staff-entries-${dashboard.session.id}`)
+      .channel(`staff-entries-${sessionId}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'queue_entries',
-          filter: `session_id=eq.${dashboard.session.id}`,
+          filter: `session_id=eq.${sessionId}`,
         },
-        () => {
-          fetchDashboard();
-        }
+        () => debouncedRefresh()
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [dashboard?.session?.id, fetchDashboard]);
+  }, [dashboard?.session?.id, debouncedRefresh]);
 
   const showNotif = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message });
@@ -215,10 +233,7 @@ export default function StaffControls() {
 
       if (data.success) {
         showNotif('success', `${action.charAt(0).toUpperCase() + action.slice(1)} successful`);
-        fetchDashboard();
-        // Refresh doctors for session updates
-        const dr = await fetch('/api/doctors').then((r) => r.json());
-        if (dr.success) setDoctors(dr.doctors);
+        refreshDashboard();
       } else {
         showNotif('error', data.error || `Failed to ${action}`);
       }
@@ -253,7 +268,7 @@ export default function StaffControls() {
         setPriorityName('');
         setPriorityPhone('');
         setShowPriorityForm(false);
-        fetchDashboard();
+        refreshDashboard();
       } else {
         showNotif('error', data.error || 'Failed to add priority patient');
       }
@@ -326,7 +341,7 @@ export default function StaffControls() {
       )}
 
       {/* Loading State */}
-      {loading && (
+      {initialLoading && (
         <div className="staff-loading">
           <div className="spinner" />
           <p>Loading dashboard...</p>
@@ -334,7 +349,7 @@ export default function StaffControls() {
       )}
 
       {/* No Session */}
-      {!loading && !dashboard && selectedDoctor && (
+      {!initialLoading && !dashboard && selectedDoctor && (
         <div className="no-session-card">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="48" height="48">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />

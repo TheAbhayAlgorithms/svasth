@@ -1914,3 +1914,228 @@ a:hover {
     font-size: 22px;
   }
 }
+
+/* ===========================================
+   Doctor Queue Page Styles
+   =========================================== */
+.doctor-queue-hero {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 640px;
+  margin: 0 auto 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.doctor-queue-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-500), var(--primary-400), var(--accent-500));
+}
+
+.doctor-queue-info h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 4px;
+}
+
+.doctor-queue-info p {
+  font-size: 14px;
+  color: var(--gray-500);
+}
+
+.doctor-queue-current {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 36px;
+  background: linear-gradient(135deg, var(--primary-50), #f0fdf4);
+  border: 2px solid var(--primary-200);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.doctor-queue-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--primary-700);
+}
+
+.doctor-queue-token {
+  font-size: 64px;
+  font-weight: 900;
+  color: var(--primary-600);
+  line-height: 1;
+  letter-spacing: -2px;
+  text-shadow: 0 2px 8px rgba(22, 163, 74, 0.15);
+}
+
+.doctor-queue-patient-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.doctor-queue-stats {
+  display: flex;
+  gap: 36px;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.doctor-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.doctor-stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+.doctor-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.doctor-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 500px;
+  margin: 0 auto 32px;
+  width: 100%;
+}
+
+.btn-next-patient {
+  width: 100%;
+  padding: 18px 32px;
+  font-size: 20px;
+  font-weight: 700;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-next-patient:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(22, 163, 74, 0.45);
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
+}
+
+.btn-next-patient:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-next-patient:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.doctor-secondary-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.doctor-secondary-actions .btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+.doctor-waiting-list {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.waiting-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.waiting-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-800);
+  transition: all 0.15s ease;
+}
+
+.waiting-chip-token {
+  font-weight: 700;
+  color: var(--primary-700);
+}
+
+.waiting-chip-name {
+  color: var(--gray-700);
+}
+
+.waiting-chip-priority {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.waiting-chip-priority .waiting-chip-token {
+  color: #b45309;
+}
+
+.waiting-chip-more {
+  background: var(--gray-100);
+  border-color: var(--gray-300);
+  color: var(--gray-600);
+  font-weight: 600;
+}
