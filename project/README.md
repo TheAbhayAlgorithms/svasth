@@ -1,4 +1,4 @@
-# SVASTH Queue — QR-Based Digital OPD Queue Management
+# SVASTH Queue — QR-Based Digital OPD Queue
 
 > **Skip the chaos. Track your OPD queue in real-time.**
 
