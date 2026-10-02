@@ -7,37 +7,63 @@ interface CheckInPageProps {
   params: Promise<{ doctorId: string }>;
 }
 
+import { mockStore } from '@/lib/mock-store';
+
 export async function generateMetadata({ params }: CheckInPageProps): Promise<Metadata> {
   const { doctorId } = await params;
-  const supabase = createServiceClient();
-  const { data: doctor } = await supabase
-    .from('doctors')
-    .select('name, department')
-    .eq('id', doctorId)
-    .single();
+  let doctorName = 'Doctor';
+  let department = 'General';
+
+  try {
+    const supabase = createServiceClient();
+    const { data: doctor } = await supabase
+      .from('doctors')
+      .select('name, department')
+      .eq('id', doctorId)
+      .single();
+    if (doctor) {
+      doctorName = doctor.name;
+      department = doctor.department || 'General';
+    }
+  } catch {
+    const mockDoc = mockStore.getDoctor(doctorId);
+    if (mockDoc) {
+      doctorName = mockDoc.name;
+      department = mockDoc.department || 'General';
+    }
+  }
 
   return {
-    title: doctor
-      ? `Check In — ${doctor.name} | SVASTH Queue`
-      : 'Check In | SVASTH Queue',
-    description: doctor
-      ? `Register for ${doctor.name}'s OPD queue — ${doctor.department}`
-      : 'Register for your OPD appointment',
+    title: `Check In — ${doctorName} | SVASTH Queue`,
+    description: `Register for ${doctorName}'s OPD queue — ${department}`,
   };
 }
 
 export default async function CheckInPage({ params }: CheckInPageProps) {
   const { doctorId } = await params;
-  const supabase = createServiceClient();
+  let doctor: any = null;
 
-  const { data: doctor, error } = await supabase
-    .from('doctors')
-    .select('*, hospital:hospitals!inner(name)')
-    .eq('id', doctorId)
-    .eq('is_active', true)
-    .single();
+  try {
+    const supabase = createServiceClient();
+    const { data, error } = await supabase
+      .from('doctors')
+      .select('*, hospital:hospitals!inner(name)')
+      .eq('id', doctorId)
+      .eq('is_active', true)
+      .single();
 
-  if (error || !doctor) {
+    if (!error && data) {
+      doctor = data;
+    }
+  } catch (e) {
+    console.warn('Supabase query error in checkin page:', e);
+  }
+
+  if (!doctor) {
+    doctor = mockStore.getDoctor(doctorId);
+  }
+
+  if (!doctor) {
     return (
       <div className="page-container">
         <div className="error-page">

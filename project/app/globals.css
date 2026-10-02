@@ -2139,3 +2139,404 @@ a:hover {
   color: var(--gray-600);
   font-weight: 600;
 }
+
+/* ===========================================
+   PATIENT OTP AUTHENTICATION STYLES
+   =========================================== */
+
+.patient-auth-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #f0fdfa;
+  border: 1px solid #ccfbf1;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+}
+
+.auth-notice-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ccfbf1;
+  color: var(--primary-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.auth-notice-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.auth-notice-content strong {
+  font-size: 13.5px;
+  color: var(--primary-900);
+}
+
+.auth-notice-content span {
+  font-size: 12.5px;
+  color: var(--primary-700);
+  line-height: 1.4;
+}
+
+.checkin-security-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--gray-500);
+  text-align: center;
+}
+
+/* Step Indicator */
+.auth-step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.step-pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+
+.step-pill.step-done {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.step-pill.step-active {
+  background: var(--primary-50);
+  border: 1px solid var(--primary-200);
+  color: var(--primary-700);
+}
+
+.step-arrow {
+  color: var(--gray-400);
+  font-size: 14px;
+}
+
+/* OTP View Heading */
+.otp-heading-box {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.otp-shield-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--primary-50);
+  border: 2px solid var(--primary-100);
+  color: var(--primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.otp-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 6px;
+}
+
+.otp-desc {
+  font-size: 13.5px;
+  color: var(--gray-600);
+  margin-bottom: 8px;
+}
+
+.otp-target-phone {
+  color: var(--gray-900);
+  font-weight: 700;
+}
+
+.otp-edit-phone-btn {
+  background: none;
+  border: none;
+  color: var(--primary-600);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.otp-edit-phone-btn:hover {
+  background: var(--primary-50);
+  text-decoration: underline;
+}
+
+/* Demo OTP helper banner */
+.demo-otp-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #fefce8;
+  border: 1px dashed #eab308;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.demo-otp-banner:hover {
+  background: #fef9c3;
+}
+
+.demo-otp-badge {
+  background: #ca8a04;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.demo-otp-text {
+  font-size: 13px;
+  color: #854d0e;
+}
+
+.demo-otp-text strong {
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: #713f12;
+}
+
+/* 6-Digit OTP Input Boxes */
+.otp-inputs-wrapper {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.otp-inputs-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.otp-digit-box {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gray-900);
+  background: var(--white);
+  border: 2px solid var(--gray-200);
+  border-radius: 12px;
+  outline: none;
+  transition: all 0.15s ease-in-out;
+  box-shadow: var(--shadow-sm);
+  caret-color: var(--primary-600);
+}
+
+.otp-digit-box:focus {
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
+  background: #f0fdfa;
+}
+
+.otp-digit-box.filled {
+  border-color: var(--primary-400);
+  background: #fafffe;
+}
+
+.otp-digit-box.error {
+  border-color: #ef4444;
+  background: #fef2f2;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.otp-error-text {
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Resend Row */
+.otp-resend-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.otp-resend-btn {
+  background: none;
+  border: none;
+  color: var(--primary-600);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.otp-resend-btn:hover {
+  background: var(--primary-50);
+}
+
+.otp-resend-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.otp-cooldown-text {
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+.otp-security-footer {
+  font-size: 12px;
+  color: var(--gray-500);
+  text-align: center;
+  margin-top: 16px;
+  line-height: 1.4;
+}
+
+/* Auth Verified Badge on Success */
+.auth-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 480px) {
+  .otp-inputs-row {
+    gap: 6px;
+  }
+  .otp-digit-box {
+    width: 40px;
+    height: 48px;
+    font-size: 20px;
+    border-radius: 8px;
+  }
+}
+
+/* Patient Check-in Section on Homepage */
+.patient-checkin-section {
+  padding: 60px 0;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.section-header-badge {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.badge-shield {
+  display: inline-block;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid #bbf7d0;
+  margin-bottom: 12px;
+}
+
+.doctor-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.doctor-checkin-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.doctor-checkin-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-300);
+  box-shadow: var(--shadow-md);
+}
+
+.doc-avatar-circle {
+  width: 56px;
+  height: 56px;
+  font-size: 28px;
+  border-radius: 50%;
+  background: var(--primary-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.doctor-checkin-card h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 6px;
+}
+
+.doc-dept-badge {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-700);
+  background: var(--primary-50);
+  padding: 4px 10px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.doc-note {
+  font-size: 13px;
+  color: var(--gray-500);
+  margin-bottom: 18px;
+}
+
+

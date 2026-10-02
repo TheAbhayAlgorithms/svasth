@@ -5,12 +5,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkInSchema } from '@/lib/validation';
 import { joinQueue } from '@/lib/queue';
+import { verifyOtp } from '@/lib/otp';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate input
+    // Validate input including 6-digit OTP
     const parsed = checkInSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
@@ -23,9 +24,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { doctorId, name, phone, consent } = parsed.data;
+    const { doctorId, name, phone, consent, otp } = parsed.data;
 
-    // Join queue
+    // Securely authenticate: Match OTP sent to this exact mobile number
+    const otpVerification = verifyOtp(phone, otp);
+    if (!otpVerification.valid) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: otpVerification.reason || 'Invalid OTP code.',
+          remainingAttempts: otpVerification.remainingAttempts,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Join queue only after successful mobile OTP authentication
     const result = await joinQueue({ doctorId, name, phone, consent });
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';

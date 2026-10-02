@@ -69,6 +69,11 @@ export function buildCalledMessage(params: {
   ].join('\n');
 }
 
+export function buildOtpMessage(params: { otp: string; doctorName?: string }): string {
+  const docPart = params.doctorName ? ` for Dr. ${params.doctorName.replace(/^Dr\.\s*/i, '')}` : '';
+  return `Your SVASTH verification code is ${params.otp}${docPart}. Valid for 5 minutes. Do not share this OTP with anyone.`;
+}
+
 // ===========================================
 // Mock Provider
 // ===========================================
@@ -328,3 +333,65 @@ export async function triggerCalledNotification(params: {
     .update({ notified_called: true })
     .eq('id', params.queueEntryId);
 }
+
+// ===========================================
+// OTP Verification Notification Trigger
+// ===========================================
+
+export async function sendOtpNotification(params: {
+  phone: string;
+  otp: string;
+  doctorName?: string;
+}): Promise<{ success: boolean; mockOtp?: string; error?: string }> {
+  const mode = process.env.NOTIFICATION_MODE || 'mock';
+  const message = buildOtpMessage({
+    otp: params.otp,
+    doctorName: params.doctorName,
+  });
+
+  if (mode === 'mock') {
+    // In mock mode, output prominently to server console
+    console.log('\n===========================================');
+    console.log(`🔒 [SVASTH OTP AUTHENTICATION]`);
+    console.log(`📱 Destination Mobile: ${params.phone}`);
+    console.log(`🔑 6-Digit OTP: ${params.otp}`);
+    console.log(`⏱️ Validity: 5 minutes`);
+    if (params.doctorName) console.log(`👨‍⚕️ Doctor: ${params.doctorName}`);
+    console.log('===========================================\n');
+
+    return {
+      success: true,
+      mockOtp: params.otp,
+    };
+  }
+
+  // Live mode: Try WhatsApp first, then Twilio SMS
+  try {
+    const payload: NotificationPayload = {
+      queueEntryId: '00000000-0000-0000-0000-000000000000',
+      patientId: '00000000-0000-0000-0000-000000000000',
+      patientName: 'Patient',
+      patientPhone: params.phone,
+      channel: 'whatsapp',
+      notificationType: 'registration',
+      messageContent: message,
+    };
+
+    let result = await sendWhatsAppMessage(payload);
+    if (!result.success) {
+      payload.channel = 'sms';
+      result = await sendTwilioSMS(payload);
+    }
+
+    return {
+      success: result.success,
+      error: result.error,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: (err as Error).message,
+    };
+  }
+}
+

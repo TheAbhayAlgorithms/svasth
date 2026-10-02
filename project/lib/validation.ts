@@ -39,7 +39,25 @@ export function normalizePhone(phone: string): string {
 }
 
 /**
- * Check-in form schema
+ * 6-digit numeric OTP schema
+ */
+export const otpSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{6}$/, 'OTP must be exactly 6 digits');
+
+/**
+ * Send OTP request schema
+ */
+export const sendOtpSchema = z.object({
+  phone: phoneSchema,
+  doctorId: z.string().min(1, 'Invalid doctor ID').optional(),
+});
+
+export type SendOtpInput = z.infer<typeof sendOtpSchema>;
+
+/**
+ * Check-in form schema (requires verified 6-digit OTP)
  */
 export const checkInSchema = z.object({
   name: z
@@ -53,6 +71,7 @@ export const checkInSchema = z.object({
     .boolean()
     .refine((val) => val === true, 'You must consent to receive notifications'),
   doctorId: z.string().min(1, 'Invalid doctor ID'),
+  otp: otpSchema,
 });
 
 export type CheckInInput = z.infer<typeof checkInSchema>;

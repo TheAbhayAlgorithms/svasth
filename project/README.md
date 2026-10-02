@@ -155,7 +155,9 @@ project/
 
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
-| POST | `/api/queue/join` | Register patient, generate token |
+| POST | `/api/auth/otp/send` | Send secure 6-digit OTP to patient's mobile |
+| POST | `/api/auth/otp/verify` | Verify 6-digit OTP independently |
+| POST | `/api/queue/join` | Verify OTP, register patient, generate token |
 | GET | `/api/queue/status?id={token}` | Get patient queue status |
 | POST | `/api/queue/next` | Advance queue (staff) |
 | POST | `/api/queue/skip` | Skip patient (staff) |
@@ -168,13 +170,15 @@ project/
 
 ## 🔒 Security
 
-- Supabase Auth for staff routes
-- Row Level Security (RLS) on all tables
-- Service role key never exposed to frontend
-- Random tracking tokens (nanoid)
-- Zod validation on all inputs
-- Consent checkbox for notifications
-- No medical data in notifications
+- **6-Digit Mobile OTP Authentication**: Patients authenticate securely via 6-digit OTP sent to their mobile number before token generation (prevents fake/invalid phone numbers).
+- **Passwordless for Patients**: No email, username, or password required for patients — quick, frictionless hospital QR check-in.
+- **Supabase Auth for Staff**: Email & password authentication strictly reserved for hospital staff (`/staff/login`).
+- **OTP Brute-Force & Expiry Protection**: 10-minute expiry, max 3 verification attempts, 30-second resend rate-limit cooldown, and single-use token consumption.
+- **Row Level Security (RLS)** on all tables.
+- **Service role key never exposed to frontend**.
+- **Random tracking tokens (nanoid)** for secure queue monitoring.
+- **Zod validation** on all API inputs.
+- **No medical data** in notifications.
 
 ## 📱 Notification Templates
 
