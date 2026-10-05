@@ -22,15 +22,15 @@ const MAX_ATTEMPTS = 3;
 
 // Global memory store persistent across Next.js dev reloads
 const globalForOtp = globalThis as unknown as {
-  __svasth_otp_store?: Map<string, OtpRecord>;
-  __svasth_otp_cooldown?: Map<string, number>;
+  __quevaa_otp_store?: Map<string, OtpRecord>;
+  __quevaa_otp_cooldown?: Map<string, number>;
 };
 
 const otpStore: Map<string, OtpRecord> =
-  globalForOtp.__svasth_otp_store || (globalForOtp.__svasth_otp_store = new Map());
+  globalForOtp.__quevaa_otp_store || (globalForOtp.__quevaa_otp_store = new Map());
 
 const cooldownStore: Map<string, number> =
-  globalForOtp.__svasth_otp_cooldown || (globalForOtp.__svasth_otp_cooldown = new Map());
+  globalForOtp.__quevaa_otp_cooldown || (globalForOtp.__quevaa_otp_cooldown = new Map());
 
 /**
  * Generate a cryptographically secure 6-digit numeric code

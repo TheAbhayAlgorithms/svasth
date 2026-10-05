@@ -48,7 +48,10 @@ export default function DoctorQueuePage() {
 
   const selectedDoctorRef = useRef('');
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
-  selectedDoctorRef.current = selectedDoctorId;
+
+  useEffect(() => {
+    selectedDoctorRef.current = selectedDoctorId;
+  }, [selectedDoctorId]);
 
   const router = useRouter();
 
@@ -67,7 +70,7 @@ export default function DoctorQueuePage() {
         // Ignore Supabase error and check mock session
       }
 
-      const mockSession = localStorage.getItem('svasth_mock_staff');
+      const mockSession = localStorage.getItem('quevaa_mock_staff');
       if (mockSession) {
         try {
           JSON.parse(mockSession);
@@ -222,7 +225,7 @@ export default function DoctorQueuePage() {
     } catch {
       // Ignore
     }
-    localStorage.removeItem('svasth_mock_staff');
+    localStorage.removeItem('quevaa_mock_staff');
     router.push('/staff/login');
   };
 
@@ -252,7 +255,7 @@ export default function DoctorQueuePage() {
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
               </div>
-              <span className="nav-title">SVASTH Queue</span>
+              <span className="nav-title">Quevaa</span>
             </Link>
             <span className="nav-divider" />
             <span className="nav-subtitle">Doctor View</span>

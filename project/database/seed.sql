@@ -1,11 +1,11 @@
 -- ===========================================
--- SVASTH Queue — Seed Data
+-- Quevaa — Seed Data
 -- Run this after schema.sql in your Supabase SQL Editor
 -- ===========================================
 
 -- Insert a sample hospital
 insert into hospitals (id, name, address, phone) values
-  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'SVASTH General Hospital', '123 Medical Avenue, New Delhi, India 110001', '+91-11-2345-6789');
+  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Quevaa General Hospital', '123 Medical Avenue, New Delhi, India 110001', '+91-11-2345-6789');
 
 -- Insert sample doctors
 insert into doctors (id, hospital_id, name, department, room_number, specialization, avg_consultation_minutes) values
@@ -41,4 +41,4 @@ insert into doctors (id, hospital_id, name, department, room_number, specializat
 -- After creating a user in Supabase Auth, insert a corresponding staff_users record:
 --
 -- insert into staff_users (auth_user_id, email, name, role, hospital_id) values
---   ('<auth-user-uuid>', 'admin@svasth.com', 'Admin User', 'admin', 'a1b2c3d4-e5f6-7890-abcd-ef1234567890');
+--   ('<auth-user-uuid>', 'admin@quevaa.com', 'Admin User', 'admin', 'a1b2c3d4-e5f6-7890-abcd-ef1234567890');

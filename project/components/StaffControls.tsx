@@ -71,8 +71,13 @@ export default function StaffControls() {
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasFetchedOnce = useRef(false);
 
-  doctorsRef.current = doctors;
-  selectedDoctorRef.current = selectedDoctorId;
+  useEffect(() => {
+    doctorsRef.current = doctors;
+  }, [doctors]);
+
+  useEffect(() => {
+    selectedDoctorRef.current = selectedDoctorId;
+  }, [selectedDoctorId]);
 
   // Fetch fresh doctors list from API
   const fetchDoctors = useCallback(async (): Promise<Doctor[]> => {

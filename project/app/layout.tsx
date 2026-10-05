@@ -8,13 +8,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'SVASTH Queue — Smart OPD Queue Management',
+  title: 'Quevaa — Smart OPD Queue Management',
   description:
     'Digital QR-based OPD queue management system. Scan, register, and track your hospital queue position in real-time.',
   keywords: ['OPD', 'queue', 'hospital', 'digital', 'QR', 'patient', 'tracking'],
-  authors: [{ name: 'SVASTH' }],
+  authors: [{ name: 'Quevaa' }],
   openGraph: {
-    title: 'SVASTH Queue — Smart OPD Queue Management',
+    title: 'Quevaa — Smart OPD Queue Management',
     description: 'Skip the chaos. Track your OPD queue in real-time.',
     type: 'website',
   },

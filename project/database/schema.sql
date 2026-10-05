@@ -1,5 +1,5 @@
 -- ===========================================
--- SVASTH Queue — Database Schema
+-- Quevaa — Database Schema
 -- Run this in your Supabase SQL Editor
 -- ===========================================
 

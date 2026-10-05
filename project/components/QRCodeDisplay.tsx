@@ -79,7 +79,7 @@ export default function QRCodeDisplay({
       </head>
       <body>
         <div class="header">
-          <p class="hospital-name">SVASTH Queue</p>
+          <p class="hospital-name">Quevaa Queue</p>
           <h1 class="title">${doctorName}</h1>
           <p class="subtitle">${department} · Room ${roomNumber}</p>
         </div>

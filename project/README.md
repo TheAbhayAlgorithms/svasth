@@ -1,4 +1,4 @@
-# SVASTH Queue — QR-Based Digital OPD Queue
+# Quevaa — QR-Based Digital OPD Queue
 
 > **Skip the chaos. Track your OPD queue in real-time.**
 
@@ -76,14 +76,14 @@ In Supabase Dashboard:
 ### 5. Create Staff User
 
 1. In Supabase Dashboard, go to **Authentication > Users**
-2. Click "Add User" and create an account (e.g., `admin@svasth.com`)
+2. Click "Add User" and create an account (e.g., `admin@quevaa.com`)
 3. In SQL Editor, insert the staff record:
 
 ```sql
 INSERT INTO staff_users (auth_user_id, email, name, role, hospital_id)
 VALUES (
   '<auth-user-uuid-from-step-2>',
-  'admin@svasth.com',
+  'admin@quevaa.com',
   'Admin',
   'admin',
   'a1b2c3d4-e5f6-7890-abcd-ef1234567890'

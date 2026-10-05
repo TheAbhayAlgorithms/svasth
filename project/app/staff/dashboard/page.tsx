@@ -28,7 +28,7 @@ export default function StaffDashboardPage() {
         // Ignore Supabase error and check mock session
       }
 
-      const mockSession = localStorage.getItem('svasth_mock_staff');
+      const mockSession = localStorage.getItem('quevaa_mock_staff');
       if (mockSession) {
         try {
           const parsed = JSON.parse(mockSession);
@@ -53,7 +53,7 @@ export default function StaffDashboardPage() {
     } catch {
       // Ignore
     }
-    localStorage.removeItem('svasth_mock_staff');
+    localStorage.removeItem('quevaa_mock_staff');
     router.push('/staff/login');
   };
 
@@ -82,7 +82,7 @@ export default function StaffDashboardPage() {
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
               </div>
-              <span className="nav-title">SVASTH Queue</span>
+              <span className="nav-title">Quevaa</span>
             </Link>
             <span className="nav-divider" />
             <span className="nav-subtitle">Staff Dashboard</span>

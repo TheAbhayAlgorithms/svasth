@@ -27,12 +27,12 @@ export default function StaffLoginPage() {
 
       if (authError) {
         console.warn('Supabase Auth warning, using demo staff session:', authError.message);
-        localStorage.setItem('svasth_mock_staff', JSON.stringify({ email: email || 'admin@svasth.com' }));
+        localStorage.setItem('quevaa_mock_staff', JSON.stringify({ email: email || 'admin@quevaa.com' }));
       }
 
       router.push('/staff/dashboard');
     } catch {
-      localStorage.setItem('svasth_mock_staff', JSON.stringify({ email: email || 'admin@svasth.com' }));
+      localStorage.setItem('quevaa_mock_staff', JSON.stringify({ email: email || 'admin@quevaa.com' }));
       router.push('/staff/dashboard');
     } finally {
       setLoading(false);
@@ -50,7 +50,7 @@ export default function StaffLoginPage() {
                 <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
               </svg>
             </div>
-            <h1>SVASTH Queue</h1>
+            <h1>Quevaa</h1>
             <p>Staff Portal</p>
           </div>
 

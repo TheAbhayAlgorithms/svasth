@@ -1,5 +1,5 @@
 // ===========================================
-// SVASTH Queue — In-Memory Mock Store Fallback
+// Quevaa — In-Memory Mock Store Fallback
 // Provides seamless out-of-the-box functionality
 // when Supabase tables are not created or accessible.
 // ===========================================
@@ -9,7 +9,7 @@ import type { Doctor, QueueSession, Patient, QueueEntry } from '@/types/database
 
 export const MOCK_HOSPITAL = {
   id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-  name: 'SVASTH General Hospital',
+  name: 'Quevaa General Hospital',
   address: '123 Medical Avenue, New Delhi, India 110001',
   phone: '+91-11-2345-6789',
 };

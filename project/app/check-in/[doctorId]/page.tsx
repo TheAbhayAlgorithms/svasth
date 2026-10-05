@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { createServiceClient } from '@/lib/supabase-server';
 import CheckInForm from '@/components/CheckInForm';
 import Link from 'next/link';
+import type { Doctor } from '@/types/database';
 
 interface CheckInPageProps {
   params: Promise<{ doctorId: string }>;
@@ -34,14 +35,14 @@ export async function generateMetadata({ params }: CheckInPageProps): Promise<Me
   }
 
   return {
-    title: `Check In — ${doctorName} | SVASTH Queue`,
+    title: `Check In — ${doctorName} | Quevaa`,
     description: `Register for ${doctorName}'s OPD queue — ${department}`,
   };
 }
 
 export default async function CheckInPage({ params }: CheckInPageProps) {
   const { doctorId } = await params;
-  let doctor: any = null;
+  let doctor: (Doctor & { hospital?: { name: string } | null }) | null = null;
 
   try {
     const supabase = createServiceClient();
@@ -84,7 +85,7 @@ export default async function CheckInPage({ params }: CheckInPageProps) {
     );
   }
 
-  const hospitalName = (doctor as unknown as { hospital: { name: string } }).hospital?.name || 'SVASTH Hospital';
+  const hospitalName = doctor.hospital?.name || 'Quevaa Hospital';
 
   return (
     <div className="page-container checkin-page">

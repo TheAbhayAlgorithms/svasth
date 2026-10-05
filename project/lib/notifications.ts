@@ -71,7 +71,7 @@ export function buildCalledMessage(params: {
 
 export function buildOtpMessage(params: { otp: string; doctorName?: string }): string {
   const docPart = params.doctorName ? ` for Dr. ${params.doctorName.replace(/^Dr\.\s*/i, '')}` : '';
-  return `Your SVASTH verification code is ${params.otp}${docPart}. Valid for 5 minutes. Do not share this OTP with anyone.`;
+  return `Your Quevaa verification code is ${params.otp}${docPart}. Valid for 5 minutes. Do not share this OTP with anyone.`;
 }
 
 // ===========================================
@@ -352,7 +352,7 @@ export async function sendOtpNotification(params: {
   if (mode === 'mock') {
     // In mock mode, output prominently to server console
     console.log('\n===========================================');
-    console.log(`🔒 [SVASTH OTP AUTHENTICATION]`);
+    console.log(`🔒 [QUEVAA OTP AUTHENTICATION]`);
     console.log(`📱 Destination Mobile: ${params.phone}`);
     console.log(`🔑 6-Digit OTP: ${params.otp}`);
     console.log(`⏱️ Validity: 5 minutes`);

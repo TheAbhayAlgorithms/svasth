@@ -1,5 +1,5 @@
 // ===========================================
-// SVASTH Queue — Database TypeScript Types
+// Quevaa — Database TypeScript Types
 // ===========================================
 
 export interface Hospital {
